@@ -55,6 +55,10 @@ const teamLimitEl = document.querySelector("#teamLimit");
 const seasonFlowerPowerEl = document.querySelector("#seasonFlowerPower");
 const unfedFlowerEl = document.querySelector("#unfedFlower");
 const decorBaseEl = document.querySelector("#decorBase");
+const aiPromptEl = document.querySelector("#aiPrompt");
+const aiTextEl = document.querySelector("#aiText");
+const importResetEl = document.querySelector("#importReset");
+const importStatusEl = document.querySelector("#importStatus");
 
 const bonusInputs = {
   current: document.querySelector("#bonusCurrent"),
@@ -86,6 +90,117 @@ const SAMPLE_ROWS = [
 
 let lastCommentPower = null;
 
+const AI_PROMPT = `이 피크민 블룸 스크린샷을 보고 아래 형식으로만 정리해줘.
+설명은 쓰지 말고 코드블록 안에 줄 단위 CSV로 출력해.
+
+형식:
+데코분류,색상,하트단계,마릿수
+
+데코분류는 현재시즌/시즌서브/일반/비데코 중 하나만 사용해.
+색상은 보라/바위/빨강/파랑/노랑/하양/핑크/얼음 중 하나만 사용해.
+하트단계는 빨0/빨1/빨2/빨3/빨4/노1/노2/노3/노4 중 하나만 사용해.
+
+같은 데코분류+색상+하트단계는 합쳐서 한 줄로 출력해.
+화면에서 확실히 보이는 피크민만 세고, 잘 안 보이거나 확실하지 않은 항목은 제외해.
+출력 예시는 아래처럼 해.
+
+현재시즌,보라,노4,8
+현재시즌,바위,노3,10
+시즌서브,빨강,노2,7
+일반,파랑,빨4,9
+비데코,노랑,빨4,6`;
+
+const DECOR_ALIASES = {
+  "현재시즌": "current",
+  "현재시즌데코": "current",
+  "시즌": "current",
+  "시즌데코": "current",
+  "현재": "current",
+  "current": "current",
+  "시즌서브": "revival",
+  "시즌서브데코": "revival",
+  "복각": "revival",
+  "복각데코": "revival",
+  "서브": "revival",
+  "revival": "revival",
+  "일반": "normal",
+  "일반데코": "normal",
+  "normal": "normal",
+  "비데코": "none",
+  "데코없음": "none",
+  "없음": "none",
+  "노데코": "none",
+  "none": "none"
+};
+
+const COLOR_ALIASES = {
+  "보라": "purple",
+  "보": "purple",
+  "purple": "purple",
+  "바위": "rock",
+  "바": "rock",
+  "rock": "rock",
+  "빨강": "red",
+  "빨": "red",
+  "red": "red",
+  "파랑": "blue",
+  "파": "blue",
+  "blue": "blue",
+  "노랑": "yellow",
+  "노": "yellow",
+  "yellow": "yellow",
+  "하양": "white",
+  "흰": "white",
+  "흰색": "white",
+  "white": "white",
+  "핑크": "winged",
+  "날개": "winged",
+  "분홍": "winged",
+  "winged": "winged",
+  "얼음": "ice",
+  "얼": "ice",
+  "ice": "ice"
+};
+
+const HEART_ALIASES = {
+  "빨0": "red0",
+  "빨강0": "red0",
+  "빨강하트0": "red0",
+  "red0": "red0",
+  "빨1": "red1",
+  "빨강1": "red1",
+  "빨강하트1": "red1",
+  "red1": "red1",
+  "빨2": "red2",
+  "빨강2": "red2",
+  "빨강하트2": "red2",
+  "red2": "red2",
+  "빨3": "red3",
+  "빨강3": "red3",
+  "빨강하트3": "red3",
+  "red3": "red3",
+  "빨4": "red4",
+  "빨강4": "red4",
+  "빨강하트4": "red4",
+  "red4": "red4",
+  "노1": "yellow1",
+  "노랑1": "yellow1",
+  "노랑하트1": "yellow1",
+  "yellow1": "yellow1",
+  "노2": "yellow2",
+  "노랑2": "yellow2",
+  "노랑하트2": "yellow2",
+  "yellow2": "yellow2",
+  "노3": "yellow3",
+  "노랑3": "yellow3",
+  "노랑하트3": "yellow3",
+  "yellow3": "yellow3",
+  "노4": "yellow4",
+  "노랑4": "yellow4",
+  "노랑하트4": "yellow4",
+  "yellow4": "yellow4"
+};
+
 function numberValue(el, fallback = 0) {
   const value = Number(el.value);
   return Number.isFinite(value) ? value : fallback;
@@ -93,6 +208,14 @@ function numberValue(el, fallback = 0) {
 
 function formatNumber(value) {
   return Math.round(value).toLocaleString("ko-KR");
+}
+
+function normalizeToken(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/데코$/g, "데코");
 }
 
 function getPowerComment(power) {
@@ -377,6 +500,70 @@ function applyRows(rows) {
   }
 }
 
+function parseAiLine(line) {
+  const cleaned = line
+    .replace(/^[-*]\s*/, "")
+    .replace(/^`+|`+$/g, "")
+    .trim();
+  if (!cleaned || cleaned.startsWith("#")) return null;
+  if (/^데코분류|^decor/i.test(cleaned)) return null;
+
+  const parts = cleaned.split(/[,\t|/]+/).map((part) => part.trim()).filter(Boolean);
+  if (parts.length !== 4) {
+    throw new Error("형식은 데코분류,색상,하트단계,마릿수 입니다");
+  }
+
+  const decor = DECOR_ALIASES[normalizeToken(parts[0])];
+  const color = COLOR_ALIASES[normalizeToken(parts[1])];
+  const heart = HEART_ALIASES[normalizeToken(parts[2])];
+  const count = Number(parts[3].replace(/[^\d.-]/g, ""));
+
+  if (!decor) throw new Error(`알 수 없는 데코분류: ${parts[0]}`);
+  if (!color) throw new Error(`알 수 없는 색상: ${parts[1]}`);
+  if (!heart) throw new Error(`알 수 없는 하트단계: ${parts[2]}`);
+  if (!Number.isFinite(count) || count < 0) throw new Error(`마릿수가 올바르지 않음: ${parts[3]}`);
+
+  return { decor, color, heart, count: Math.floor(count) };
+}
+
+function applyAiText() {
+  const lines = aiTextEl.value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("```"));
+  const parsed = [];
+  const errors = [];
+
+  for (const [index, line] of lines.entries()) {
+    try {
+      const item = parseAiLine(line);
+      if (item) parsed.push(item);
+    } catch (error) {
+      errors.push(`${index + 1}행: ${error.message}`);
+    }
+  }
+
+  if (!parsed.length) {
+    importStatusEl.textContent = errors.length ? errors.slice(0, 3).join(" / ") : "반영할 줄이 없습니다.";
+    importStatusEl.className = "import-status error";
+    return;
+  }
+
+  if (importResetEl.checked) resetRows();
+
+  for (const item of parsed) {
+    const row = decorSectionsEl.querySelector(`[data-decor="${item.decor}"] tr[data-color="${item.color}"]`);
+    const input = row?.querySelector(`[data-heart="${item.heart}"]`);
+    if (!input) continue;
+    input.value = numberValue(input, 0) + item.count;
+  }
+
+  calculate();
+  const suffix = errors.length ? ` 오류 ${errors.length}개: ${errors.slice(0, 2).join(" / ")}` : "";
+  importStatusEl.textContent = `${parsed.length}줄을 반영했습니다.${suffix}`;
+  importStatusEl.className = errors.length ? "import-status warn" : "import-status ok";
+}
+
 function applyCollapsed(collapsed) {
   for (const decor of DECORS) {
     const group = decorSectionsEl.querySelector(`[data-decor="${decor.id}"]`);
@@ -407,8 +594,26 @@ function resetRows() {
 
 for (const decor of DECORS) createGroup(decor);
 
+aiPromptEl.value = AI_PROMPT;
 document.querySelector("#sampleRows").addEventListener("click", setSampleRows);
 document.querySelector("#clearRows").addEventListener("click", clearRows);
+document.querySelector("#applyAiText").addEventListener("click", applyAiText);
+document.querySelector("#clearAiText").addEventListener("click", () => {
+  aiTextEl.value = "";
+  importStatusEl.textContent = "";
+  importStatusEl.className = "import-status";
+});
+document.querySelector("#copyPrompt").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(AI_PROMPT);
+    importStatusEl.textContent = "프롬프트를 복사했습니다.";
+    importStatusEl.className = "import-status ok";
+  } catch {
+    aiPromptEl.select();
+    importStatusEl.textContent = "복사가 막혔습니다. 프롬프트 영역을 직접 복사해 주세요.";
+    importStatusEl.className = "import-status warn";
+  }
+});
 output.showComment.addEventListener("click", () => {
   output.powerComment.hidden = !output.powerComment.hidden;
   output.showComment.textContent = output.powerComment.hidden ? "결과 확인" : "결과 숨기기";

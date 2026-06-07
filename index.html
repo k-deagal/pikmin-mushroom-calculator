@@ -91,6 +91,30 @@
       </div>
     </section>
 
+    <section class="import-panel" aria-label="AI 텍스트 입력">
+      <div class="section-title">
+        <h2>AI 텍스트 붙여넣기</h2>
+        <span>수동 입력과 같이 사용 가능</span>
+      </div>
+      <details class="prompt-box">
+        <summary>GPT/Gemini용 프롬프트</summary>
+        <textarea id="aiPrompt" rows="10" readonly spellcheck="false"></textarea>
+        <button id="copyPrompt" type="button">프롬프트 복사</button>
+      </details>
+      <textarea id="aiText" rows="6" spellcheck="false" placeholder="현재시즌,보라,노4,8&#10;현재시즌,바위,노3,10&#10;시즌서브,빨강,노2,7&#10;일반,파랑,빨4,9&#10;비데코,노랑,빨4,6"></textarea>
+      <div class="import-actions">
+        <label class="inline-check">
+          <input id="importReset" type="checkbox">
+          <span>적용 전 전체 0으로 초기화</span>
+        </label>
+        <div class="button-row">
+          <button id="applyAiText" class="primary-button" type="button">텍스트 반영</button>
+          <button id="clearAiText" type="button">텍스트 지우기</button>
+        </div>
+      </div>
+      <p id="importStatus" class="import-status" role="status"></p>
+    </section>
+
     <section class="table-panel" aria-label="피크민 상태 입력">
       <div class="section-title">
         <h2>데코별 입력</h2>

@@ -227,11 +227,19 @@ button:focus-visible {
 }
 
 .bonus-panel,
+.import-panel,
 .table-panel,
 .formula-panel,
 .result-panel {
   margin-top: 14px;
   padding: 18px;
+}
+
+.import-panel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(30, 37, 32, 0.06);
 }
 
 .section-title {
@@ -261,6 +269,80 @@ button:focus-visible {
 
 .bonus-grid span {
   display: block;
+}
+
+.prompt-box {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #fbfcfa;
+}
+
+.prompt-box summary {
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.prompt-box textarea,
+.import-panel > textarea {
+  width: 100%;
+  resize: vertical;
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  line-height: 1.5;
+  min-height: 132px;
+}
+
+.prompt-box textarea {
+  min-height: 220px;
+  color: var(--muted);
+}
+
+.prompt-box button {
+  margin-top: 8px;
+}
+
+.import-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-check input {
+  width: auto;
+  min-height: auto;
+}
+
+.import-status {
+  min-height: 22px;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.import-status.ok {
+  color: var(--accent-strong);
+}
+
+.import-status.warn {
+  color: #9b6a00;
+}
+
+.import-status.error {
+  color: #a43830;
 }
 
 .decor-sections {
