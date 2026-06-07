@@ -779,24 +779,41 @@ function applyAiText() {
     setHeartCount(row, item.heart, numberValue(input, 0) + item.count);
   }
 
+  syncCollapsedWithInput({ openNonEmpty: true });
   calculate();
   const suffix = errors.length ? ` 오류 ${errors.length}개: ${errors.slice(0, 2).join(" / ")}` : "";
   importStatusEl.textContent = `${parsed.length}줄을 반영했습니다.${suffix}`;
   importStatusEl.className = errors.length ? "import-status warn" : "import-status ok";
 }
 
+function setGroupCollapsed(group, isCollapsed) {
+  group.classList.toggle("collapsed", isCollapsed);
+  group.querySelector(".group-toggle").setAttribute("aria-expanded", String(!isCollapsed));
+}
+
 function applyCollapsed(collapsed) {
   for (const decor of DECORS) {
     const group = decorSectionsEl.querySelector(`[data-decor="${decor.id}"]`);
-    const isCollapsed = Boolean(collapsed[decor.id]);
-    group.classList.toggle("collapsed", isCollapsed);
-    group.querySelector(".group-toggle").setAttribute("aria-expanded", String(!isCollapsed));
+    setGroupCollapsed(group, Boolean(collapsed[decor.id]));
+  }
+}
+
+function syncCollapsedWithInput({ openNonEmpty = false } = {}) {
+  for (const decor of DECORS) {
+    const group = decorSectionsEl.querySelector(`[data-decor="${decor.id}"]`);
+    const hasInput = Array.from(group.querySelectorAll(".color-row")).some((row) => getRowData(row).count > 0);
+    if (!hasInput) {
+      setGroupCollapsed(group, true);
+    } else if (openNonEmpty) {
+      setGroupCollapsed(group, false);
+    }
   }
 }
 
 function setSampleRows() {
   resetRows();
   applyRows(SAMPLE_ROWS);
+  syncCollapsedWithInput({ openNonEmpty: true });
   calculate();
 }
 
@@ -804,7 +821,7 @@ function clearRows() {
   localStorage.removeItem(STORAGE_KEY);
   applyEventBonusDefaults();
   resetRows();
-  applyCollapsed({});
+  syncCollapsedWithInput();
   calculate();
 }
 
@@ -855,5 +872,10 @@ for (const el of [teamLimitEl, seasonFlowerPowerEl, unfedFlowerEl, decorBaseEl, 
   el.addEventListener("change", calculate);
 }
 
-if (!loadState()) resetRows();
+if (!loadState()) {
+  resetRows();
+  syncCollapsedWithInput();
+} else {
+  syncCollapsedWithInput();
+}
 calculate();
