@@ -47,6 +47,12 @@ const COLOR_BY_ID = Object.fromEntries(COLORS.map((item) => [item.id, item]));
 const DECOR_BY_ID = Object.fromEntries(DECORS.map((item) => [item.id, item]));
 const FRIENDSHIP_BY_ID = Object.fromEntries(FRIENDSHIPS.map((item) => [item.id, item]));
 const STORAGE_KEY = "pikminMushroomCalculatorV5";
+const EVENT_BONUS_DEFAULTS = {
+  current: 300,
+  revival: 100,
+  normal: 0,
+  decorBase: 4
+};
 
 const decorSectionsEl = document.querySelector("#decorSections");
 const groupTemplate = document.querySelector("#groupTemplate");
@@ -500,6 +506,7 @@ async function shareResult() {
 
 function getState() {
   return {
+    version: 6,
     teamLimit: teamLimitEl.value,
     seasonFlowerPower: seasonFlowerPowerEl.value,
     unfedFlower: unfedFlowerEl.value,
@@ -529,14 +536,19 @@ function loadState() {
   try {
     const state = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!state) return false;
+    const savedBonuses = state.bonuses || {};
+    const hasLegacyZeroBonuses = !state.version
+      && Number(savedBonuses.current ?? 0) === 0
+      && Number(savedBonuses.revival ?? 0) === 0
+      && Number(savedBonuses.normal ?? 0) === 0;
 
     teamLimitEl.value = state.teamLimit ?? 40;
     seasonFlowerPowerEl.value = state.seasonFlowerPower ?? 5;
     unfedFlowerEl.value = state.unfedFlower ?? "leaf";
-    decorBaseEl.value = state.decorBase ?? 4;
-    bonusInputs.current.value = state.bonuses?.current ?? 0;
-    bonusInputs.revival.value = state.bonuses?.revival ?? 0;
-    bonusInputs.normal.value = state.bonuses?.normal ?? 0;
+    decorBaseEl.value = state.decorBase ?? EVENT_BONUS_DEFAULTS.decorBase;
+    bonusInputs.current.value = hasLegacyZeroBonuses ? EVENT_BONUS_DEFAULTS.current : savedBonuses.current ?? EVENT_BONUS_DEFAULTS.current;
+    bonusInputs.revival.value = hasLegacyZeroBonuses ? EVENT_BONUS_DEFAULTS.revival : savedBonuses.revival ?? EVENT_BONUS_DEFAULTS.revival;
+    bonusInputs.normal.value = savedBonuses.normal ?? EVENT_BONUS_DEFAULTS.normal;
 
     applyRows(state.rows || []);
     applyCollapsed(state.collapsed || {});
@@ -637,6 +649,7 @@ function setSampleRows() {
 
 function clearRows() {
   localStorage.removeItem(STORAGE_KEY);
+  applyEventBonusDefaults();
   resetRows();
   applyCollapsed({});
   calculate();
@@ -648,8 +661,16 @@ function resetRows() {
   }
 }
 
+function applyEventBonusDefaults() {
+  bonusInputs.current.value = EVENT_BONUS_DEFAULTS.current;
+  bonusInputs.revival.value = EVENT_BONUS_DEFAULTS.revival;
+  bonusInputs.normal.value = EVENT_BONUS_DEFAULTS.normal;
+  decorBaseEl.value = EVENT_BONUS_DEFAULTS.decorBase;
+}
+
 for (const decor of DECORS) createGroup(decor);
 
+applyEventBonusDefaults();
 aiPromptEl.value = AI_PROMPT;
 document.querySelector("#sampleRows").addEventListener("click", setSampleRows);
 document.querySelector("#clearRows").addEventListener("click", clearRows);
