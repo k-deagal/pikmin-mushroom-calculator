@@ -70,6 +70,8 @@ const output = {
   totalPower: document.querySelector("#totalPower"),
   powerComment: document.querySelector("#powerComment"),
   showComment: document.querySelector("#showComment"),
+  shareResult: document.querySelector("#shareResult"),
+  shareStatus: document.querySelector("#shareStatus"),
   seasonTotal: document.querySelector("#seasonTotal"),
   regularTotal: document.querySelector("#regularTotal"),
   unfedTotal: document.querySelector("#unfedTotal"),
@@ -89,6 +91,7 @@ const SAMPLE_ROWS = [
 ];
 
 let lastCommentPower = null;
+let lastTotals = emptyScenarioTotals();
 
 const AI_PROMPT = `이 피크민 블룸 스크린샷을 보고 아래 형식으로만 정리해줘.
 설명은 쓰지 말고 코드블록 안에 줄 단위 CSV로 출력해.
@@ -409,6 +412,7 @@ function calculate() {
     scenario.id,
     topLimitedTotal(items, scenario.id)
   ]));
+  lastTotals = totals;
 
   for (const row of decorSectionsEl.querySelectorAll("tbody tr")) {
     const data = getRowData(row);
@@ -440,6 +444,57 @@ function calculate() {
 
 function totalCount(items) {
   return items.reduce((sum, item) => sum + item.count, 0);
+}
+
+function buildShareText() {
+  const items = collectRows();
+  const count = totalCount(items);
+  const limit = Math.max(1, Math.floor(numberValue(teamLimitEl, 40)));
+  const url = location.href.split("?")[0];
+  return [
+    "피크민 버섯 투력 계산 결과",
+    `시즌꽃: ${formatNumber(lastTotals.season)}`,
+    `일반꽃: ${formatNumber(lastTotals.regular)}`,
+    `안줌: ${formatNumber(lastTotals.unfed)}`,
+    `탈모: ${formatNumber(lastTotals.bare)}`,
+    `기준: 상위 ${Math.min(count, limit)}마리 / 입력 ${count}마리`,
+    getPowerComment(lastTotals.season),
+    url
+  ].join("\n");
+}
+
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
+async function shareResult() {
+  const text = buildShareText();
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: "피크민 버섯 투력 계산 결과", text });
+      output.shareStatus.textContent = "공유 화면을 열었습니다.";
+    } else {
+      await copyText(text);
+      output.shareStatus.textContent = "결과를 복사했습니다.";
+    }
+    output.shareStatus.className = "share-status ok";
+  } catch {
+    output.shareStatus.textContent = "공유가 취소되었거나 복사하지 못했습니다.";
+    output.shareStatus.className = "share-status warn";
+  }
 }
 
 function getState() {
@@ -618,6 +673,7 @@ output.showComment.addEventListener("click", () => {
   output.powerComment.hidden = !output.powerComment.hidden;
   output.showComment.textContent = output.powerComment.hidden ? "결과 확인" : "결과 숨기기";
 });
+output.shareResult.addEventListener("click", shareResult);
 
 for (const el of [teamLimitEl, seasonFlowerPowerEl, unfedFlowerEl, decorBaseEl, ...Object.values(bonusInputs)]) {
   el.addEventListener("input", calculate);

@@ -21,10 +21,10 @@
         <span>직접 입력하거나 AI 결과를 붙여넣기</span>
       </div>
       <ol class="guide-list">
-        <li>보낼 마릿수와 꽃/데코 보너스를 맞춥니다.</li>
+        <li>보낼 마릿수와 데코 보너스를 맞춥니다.</li>
         <li>색상과 하트 단계별 마릿수를 직접 넣습니다.</li>
-        <li>AI로 정리한 CSV는 아래 붙여넣기에 반영합니다.</li>
-        <li>결과는 맨 아래에서 확인합니다.</li>
+        <li>AI CSV는 아래에 붙여넣습니다.</li>
+        <li>결과는 맨 아래입니다.</li>
       </ol>
     </section>
 
@@ -40,26 +40,32 @@
         <label for="teamLimit">보낼 마릿수 제한</label>
         <input id="teamLimit" type="number" min="1" max="100" step="1" value="40">
       </div>
-      <div class="field">
-        <label for="seasonFlowerPower">시즌꽃 보너스</label>
-        <select id="seasonFlowerPower">
-          <option value="5" selected>이달의 꽃 (+5)</option>
-          <option value="4">계절 꽃 (+4)</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="unfedFlower">안줬을 때 상태</label>
-        <select id="unfedFlower">
-          <option value="leaf" selected>잎사귀 (+1)</option>
-          <option value="bud">봉우리 (+2)</option>
-          <option value="regular">일반 꽃 (+3)</option>
-          <option value="seasonal">계절 꽃 (+4)</option>
-          <option value="monthly">이달의 꽃 (+5)</option>
-        </select>
-      </div>
       <button id="sampleRows" class="primary-button" type="button">예시 입력</button>
       <button id="clearRows" type="button">초기화</button>
     </section>
+
+    <details class="settings-panel">
+      <summary>계산 기준</summary>
+      <div class="settings-grid">
+        <div class="field">
+          <label for="seasonFlowerPower">시즌꽃 기준</label>
+          <select id="seasonFlowerPower">
+            <option value="5" selected>이달의 꽃 (+5)</option>
+            <option value="4">계절 꽃 (+4)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="unfedFlower">안줬을 때 기준</label>
+          <select id="unfedFlower">
+            <option value="leaf" selected>잎사귀 (+1)</option>
+            <option value="bud">봉우리 (+2)</option>
+            <option value="regular">일반 꽃 (+3)</option>
+            <option value="seasonal">계절 꽃 (+4)</option>
+            <option value="monthly">이달의 꽃 (+5)</option>
+          </select>
+        </div>
+      </div>
+    </details>
 
     <section class="bonus-panel" aria-label="데코 및 이벤트 보너스">
       <div class="section-title">
@@ -150,8 +156,12 @@
       <div class="hero-total" aria-live="polite">
         <span>시즌꽃 기준 투력</span>
         <strong id="totalPower">0</strong>
-        <button id="showComment" class="comment-button" type="button">결과 확인</button>
+        <div class="result-actions">
+          <button id="showComment" class="comment-button" type="button">결과 확인</button>
+          <button id="shareResult" class="comment-button" type="button">결과 공유</button>
+        </div>
         <p id="powerComment" class="power-comment" hidden>이건 알박기인가요?</p>
+        <p id="shareStatus" class="share-status" role="status"></p>
       </div>
 
       <section class="summary-grid" aria-label="상황별 투력">
