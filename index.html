@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>피크민 버섯 투력 계산기</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Pikmin Bloom Mushroom Power</p>
+        <h1>버섯 투력 계산기</h1>
+      </div>
+      <div class="hero-total" aria-live="polite">
+        <span>예상 총 투력</span>
+        <strong id="totalPower">0</strong>
+      </div>
+    </section>
+
+    <section class="summary-grid" aria-label="투력 요약">
+      <article class="metric">
+        <span>총 피크민</span>
+        <strong id="totalCount">0</strong>
+      </article>
+      <article class="metric">
+        <span>보낼 평균</span>
+        <strong id="avgPower">0.0</strong>
+      </article>
+      <article class="metric">
+        <span>꽃 변경 전</span>
+        <strong id="currentPower">0</strong>
+      </article>
+      <article class="metric">
+        <span>꽃 변경 차이</span>
+        <strong id="powerDiff">+0</strong>
+      </article>
+    </section>
+
+    <section class="control-band">
+      <div class="field">
+        <label for="targetFlower">꽃을 준 뒤 상태</label>
+        <select id="targetFlower">
+          <option value="keep">현재 상태 유지</option>
+          <option value="bare">대머리 (+0)</option>
+          <option value="leaf">잎사귀 (+1)</option>
+          <option value="bud">봉우리 (+2)</option>
+          <option value="regular">일반 꽃 (+3)</option>
+          <option value="seasonal">계절 꽃 (+4)</option>
+          <option value="monthly" selected>이달의 꽃 (+5)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="teamLimit">보낼 마릿수 제한</label>
+        <input id="teamLimit" type="number" min="1" max="100" step="1" value="40">
+      </div>
+      <div class="field">
+        <label for="sortMode">추천 정렬</label>
+        <select id="sortMode">
+          <option value="input">입력 순서</option>
+          <option value="power">마리당 투력 높은 순</option>
+          <option value="category">데코 분류별</option>
+          <option value="color">색상별</option>
+        </select>
+      </div>
+      <button id="addRow" class="primary-button" type="button">묶음 추가</button>
+    </section>
+
+    <section class="bonus-panel" aria-label="데코 및 이벤트 보너스">
+      <div class="section-title">
+        <h2>데코 보너스</h2>
+        <span>이벤트 보너스는 바뀌면 여기만 수정</span>
+      </div>
+      <div class="bonus-grid">
+        <label>
+          <span>현재시즌 데코</span>
+          <input id="bonusCurrent" type="number" step="1" value="0">
+        </label>
+        <label>
+          <span>복각/작년 데코</span>
+          <input id="bonusRevival" type="number" step="1" value="0">
+        </label>
+        <label>
+          <span>일반 데코</span>
+          <input id="bonusNormal" type="number" step="1" value="0">
+        </label>
+        <label>
+          <span>데코 있음 기본</span>
+          <input id="decorBase" type="number" step="1" value="4">
+        </label>
+      </div>
+    </section>
+
+    <section class="table-panel" aria-label="피크민 상태 입력">
+      <div class="section-title">
+        <h2>내 피크민 입력</h2>
+        <div class="button-row">
+          <button id="sampleRows" type="button">예시 입력</button>
+          <button id="clearRows" type="button">초기화</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>마리</th>
+              <th>색상</th>
+              <th>밀접도</th>
+              <th>현재 꽃</th>
+              <th>데코 분류</th>
+              <th>마리당</th>
+              <th>합계</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="result-layout">
+      <article class="result-panel">
+        <div class="section-title">
+          <h2>분류별 합계</h2>
+        </div>
+        <div id="categorySummary" class="summary-list"></div>
+      </article>
+      <article class="result-panel">
+        <div class="section-title">
+          <h2>색상별 합계</h2>
+        </div>
+        <div id="colorSummary" class="summary-list"></div>
+      </article>
+      <article class="result-panel">
+        <div class="section-title">
+          <h2>상위 추천</h2>
+        </div>
+        <ol id="topList" class="top-list"></ol>
+      </article>
+    </section>
+
+    <section class="formula-panel">
+      <div class="section-title">
+        <h2>적용 공식</h2>
+      </div>
+      <div class="formula-grid">
+        <div>
+          <h3>색상 기본값</h3>
+          <p>빨강 4, 노랑 3, 파랑 3, 보라 6, 하양 2, 날개 2, 바위 5</p>
+        </div>
+        <div>
+          <h3>밀접도</h3>
+          <p>빨강하트 0-4는 +0-4, 골드하트 1-4는 +8, +12, +16, +20</p>
+        </div>
+        <div>
+          <h3>꽃 상태</h3>
+          <p>대머리 +0, 잎사귀 +1, 봉우리 +2, 일반 꽃 +3, 계절 꽃 +4, 이달의 꽃 +5</p>
+        </div>
+        <div>
+          <h3>데코</h3>
+          <p>데코 있음 기본 +4에 현재시즌/복각/일반 이벤트 보너스를 더함</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <template id="rowTemplate">
+    <tr>
+      <td><input class="count" type="number" min="0" max="100" step="1" value="1" aria-label="마리 수"></td>
+      <td>
+        <select class="color" aria-label="피크민 색상">
+          <option value="red">빨강 (+4)</option>
+          <option value="yellow">노랑 (+3)</option>
+          <option value="blue">파랑 (+3)</option>
+          <option value="purple">보라 (+6)</option>
+          <option value="white">하양 (+2)</option>
+          <option value="winged">날개 (+2)</option>
+          <option value="rock">바위 (+5)</option>
+        </select>
+      </td>
+      <td>
+        <select class="friendship" aria-label="밀접도">
+          <option value="red0">빨강하트 0 (+0)</option>
+          <option value="red1">빨강하트 1 (+1)</option>
+          <option value="red2">빨강하트 2 (+2)</option>
+          <option value="red3">빨강하트 3 (+3)</option>
+          <option value="red4" selected>빨강하트 4 (+4)</option>
+          <option value="gold1">골드하트 1 (+8)</option>
+          <option value="gold2">골드하트 2 (+12)</option>
+          <option value="gold3">골드하트 3 (+16)</option>
+          <option value="gold4">골드하트 4 (+20)</option>
+        </select>
+      </td>
+      <td>
+        <select class="flower" aria-label="현재 꽃 상태">
+          <option value="bare">대머리 (+0)</option>
+          <option value="leaf">잎사귀 (+1)</option>
+          <option value="bud">봉우리 (+2)</option>
+          <option value="regular">일반 꽃 (+3)</option>
+          <option value="seasonal">계절 꽃 (+4)</option>
+          <option value="monthly" selected>이달의 꽃 (+5)</option>
+        </select>
+      </td>
+      <td>
+        <select class="decor" aria-label="데코 분류">
+          <option value="current">현재시즌 데코</option>
+          <option value="revival">복각/작년 데코</option>
+          <option value="normal" selected>일반 데코</option>
+          <option value="none">데코 없음</option>
+        </select>
+      </td>
+      <td class="each-power">0</td>
+      <td class="row-total">0</td>
+      <td><button class="remove-row" type="button" aria-label="묶음 삭제">삭제</button></td>
+    </tr>
+  </template>
+
+  <script src="./script.js"></script>
+</body>
+</html>
