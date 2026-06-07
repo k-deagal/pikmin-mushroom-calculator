@@ -57,10 +57,10 @@ button:hover {
 
 .hero {
   display: grid;
-  grid-template-columns: 1fr minmax(220px, 320px);
+  grid-template-columns: 1fr;
   align-items: center;
   gap: 18px;
-  min-height: 160px;
+  min-height: 124px;
 }
 
 .eyebrow {
@@ -146,6 +146,7 @@ h1 {
 }
 
 .metric,
+.guide-panel,
 .bonus-panel,
 .table-panel,
 .result-panel,
@@ -155,6 +156,22 @@ h1 {
   border: 1px solid var(--line);
   border-radius: 8px;
   box-shadow: 0 8px 22px rgba(30, 37, 32, 0.06);
+}
+
+.guide-list {
+  margin: 0;
+  padding-left: 22px;
+  color: var(--muted);
+  line-height: 1.7;
+  font-weight: 700;
+}
+
+.flow-title {
+  margin-top: 20px;
+}
+
+.flow-title .section-title {
+  margin-bottom: 0;
 }
 
 .metric {
@@ -230,9 +247,19 @@ button:focus-visible {
 .import-panel,
 .table-panel,
 .formula-panel,
+.guide-panel,
 .result-panel {
   margin-top: 14px;
   padding: 18px;
+}
+
+.results-panel {
+  margin-top: 18px;
+}
+
+.results-panel .hero-total,
+.results-panel .summary-grid {
+  margin-top: 12px;
 }
 
 .import-panel {

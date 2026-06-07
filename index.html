@@ -13,34 +13,29 @@
         <p class="eyebrow">Pikmin Bloom Mushroom Power</p>
         <h1>버섯 투력 계산기</h1>
       </div>
-      <div class="hero-total" aria-live="polite">
-        <span>시즌꽃 기준 투력</span>
-        <strong id="totalPower">0</strong>
-        <button id="showComment" class="comment-button" type="button">결과 확인</button>
-        <p id="powerComment" class="power-comment" hidden>이건 알박기인가요?</p>
+    </section>
+
+    <section class="guide-panel" aria-label="사용법 안내">
+      <div class="section-title">
+        <h2>사용법 안내</h2>
+        <span>직접 입력하거나 AI 결과를 붙여넣기</span>
+      </div>
+      <ol class="guide-list">
+        <li>보낼 마릿수와 꽃/데코 보너스를 맞춥니다.</li>
+        <li>색상과 하트 단계별 마릿수를 직접 넣습니다.</li>
+        <li>AI로 정리한 CSV는 아래 붙여넣기에 반영합니다.</li>
+        <li>결과는 맨 아래에서 확인합니다.</li>
+      </ol>
+    </section>
+
+    <section class="flow-title" aria-label="직접 입력">
+      <div class="section-title">
+        <h2>직접 입력</h2>
+        <span>마릿수와 보너스를 직접 입력</span>
       </div>
     </section>
 
-    <section class="summary-grid" aria-label="상황별 투력">
-      <article class="metric highlight">
-        <span>시즌꽃</span>
-        <strong id="seasonTotal">0</strong>
-      </article>
-      <article class="metric">
-        <span>일반꽃</span>
-        <strong id="regularTotal">0</strong>
-      </article>
-      <article class="metric">
-        <span>안줌</span>
-        <strong id="unfedTotal">0</strong>
-      </article>
-      <article class="metric">
-        <span>탈모</span>
-        <strong id="bareTotal">0</strong>
-      </article>
-    </section>
-
-    <section class="control-band">
+    <section class="control-band" aria-label="직접 입력 설정">
       <div class="field">
         <label for="teamLimit">보낼 마릿수 제한</label>
         <input id="teamLimit" type="number" min="1" max="100" step="1" value="40">
@@ -91,6 +86,14 @@
       </div>
     </section>
 
+    <section class="table-panel" aria-label="피크민 상태 입력">
+      <div class="section-title">
+        <h2>데코별 마릿수</h2>
+        <span>색상은 투력순, 하트 단계별 마릿수를 입력</span>
+      </div>
+      <div id="decorSections" class="decor-sections"></div>
+    </section>
+
     <section class="import-panel" aria-label="AI 텍스트 입력">
       <div class="section-title">
         <h2>AI 텍스트 붙여넣기</h2>
@@ -115,37 +118,6 @@
       <p id="importStatus" class="import-status" role="status"></p>
     </section>
 
-    <section class="table-panel" aria-label="피크민 상태 입력">
-      <div class="section-title">
-        <h2>데코별 입력</h2>
-        <span>색상은 투력순, 하트 단계별 마릿수를 입력</span>
-      </div>
-      <div id="decorSections" class="decor-sections"></div>
-    </section>
-
-    <section class="result-layout">
-      <article class="result-panel">
-        <div class="section-title">
-          <h2>분류별 합계</h2>
-          <span>시즌꽃 기준 전체 입력</span>
-        </div>
-        <div id="categorySummary" class="summary-list"></div>
-      </article>
-      <article class="result-panel">
-        <div class="section-title">
-          <h2>색상별 합계</h2>
-          <span>시즌꽃 기준 전체 입력</span>
-        </div>
-        <div id="colorSummary" class="summary-list"></div>
-      </article>
-      <article class="result-panel">
-        <div class="section-title">
-          <h2>상위 추천</h2>
-        </div>
-        <ol id="topList" class="top-list"></ol>
-      </article>
-    </section>
-
     <section class="formula-panel">
       <div class="section-title">
         <h2>적용 공식</h2>
@@ -167,6 +139,61 @@
           <h3>데코</h3>
           <p>데코 없음은 +0, 데코 있음은 기본 +4에 이벤트 추가 보너스를 더함</p>
         </div>
+      </div>
+    </section>
+
+    <section class="results-panel" aria-label="계산 결과">
+      <div class="section-title">
+        <h2>계산 결과</h2>
+        <span>상위 추천 마릿수 기준</span>
+      </div>
+      <div class="hero-total" aria-live="polite">
+        <span>시즌꽃 기준 투력</span>
+        <strong id="totalPower">0</strong>
+        <button id="showComment" class="comment-button" type="button">결과 확인</button>
+        <p id="powerComment" class="power-comment" hidden>이건 알박기인가요?</p>
+      </div>
+
+      <section class="summary-grid" aria-label="상황별 투력">
+        <article class="metric highlight">
+          <span>시즌꽃</span>
+          <strong id="seasonTotal">0</strong>
+        </article>
+        <article class="metric">
+          <span>일반꽃</span>
+          <strong id="regularTotal">0</strong>
+        </article>
+        <article class="metric">
+          <span>안줌</span>
+          <strong id="unfedTotal">0</strong>
+        </article>
+        <article class="metric">
+          <span>탈모</span>
+          <strong id="bareTotal">0</strong>
+        </article>
+      </section>
+
+      <div class="result-layout">
+        <article class="result-panel">
+          <div class="section-title">
+            <h2>분류별 합계</h2>
+            <span>시즌꽃 기준 전체 입력</span>
+          </div>
+          <div id="categorySummary" class="summary-list"></div>
+        </article>
+        <article class="result-panel">
+          <div class="section-title">
+            <h2>색상별 합계</h2>
+            <span>시즌꽃 기준 전체 입력</span>
+          </div>
+          <div id="colorSummary" class="summary-list"></div>
+        </article>
+        <article class="result-panel">
+          <div class="section-title">
+            <h2>상위 추천</h2>
+          </div>
+          <ol id="topList" class="top-list"></ol>
+        </article>
       </div>
     </section>
   </main>
