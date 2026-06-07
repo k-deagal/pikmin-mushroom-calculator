@@ -1,10 +1,10 @@
 const COLORS = [
+  { id: "purple", label: "보라", power: 6 },
+  { id: "rock", label: "바위", power: 5 },
   { id: "red", label: "빨강", power: 4 },
   { id: "blue", label: "파랑", power: 3 },
   { id: "yellow", label: "노랑", power: 3 },
   { id: "white", label: "하양", power: 2 },
-  { id: "purple", label: "보라", power: 6 },
-  { id: "rock", label: "바위", power: 5 },
   { id: "winged", label: "핑크/날개", power: 2 },
   { id: "ice", label: "얼음", power: 2 }
 ];
@@ -13,37 +13,27 @@ const DECORS = [
   { id: "current", label: "현재시즌 데코", hint: "이번 이벤트 주력 데코" },
   { id: "revival", label: "시즌서브/복각 데코", hint: "작년 또는 복각 이벤트 데코" },
   { id: "normal", label: "일반 데코", hint: "이벤트 보너스 없는 일반 데코" },
-  { id: "none", label: "데코 없음", hint: "데코를 아직 얻지 못한 피크민" }
+  { id: "none", label: "비데코", hint: "데코를 아직 얻지 못한 피크민" }
 ];
 
 const FRIENDSHIPS = [
-  { id: "red0", label: "빨강하트 0", power: 0 },
-  { id: "red1", label: "빨강하트 1", power: 1 },
-  { id: "red2", label: "빨강하트 2", power: 2 },
-  { id: "red3", label: "빨강하트 3", power: 3 },
-  { id: "red4", label: "빨강하트 4", power: 4 },
-  { id: "yellow1", label: "노랑하트 1", power: 8 },
-  { id: "yellow2", label: "노랑하트 2", power: 12 },
-  { id: "yellow3", label: "노랑하트 3", power: 16 },
-  { id: "yellow4", label: "노랑하트 4", power: 20 }
+  { id: "red0", label: "빨강하트 0", short: "빨0", power: 0 },
+  { id: "red1", label: "빨강하트 1", short: "빨1", power: 1 },
+  { id: "red2", label: "빨강하트 2", short: "빨2", power: 2 },
+  { id: "red3", label: "빨강하트 3", short: "빨3", power: 3 },
+  { id: "red4", label: "빨강하트 4", short: "빨4", power: 4 },
+  { id: "yellow1", label: "노랑하트 1", short: "노1", power: 8 },
+  { id: "yellow2", label: "노랑하트 2", short: "노2", power: 12 },
+  { id: "yellow3", label: "노랑하트 3", short: "노3", power: 16 },
+  { id: "yellow4", label: "노랑하트 4", short: "노4", power: 20 }
 ];
 
 const FLOWER_POWER = {
-  bare: 0,
   leaf: 1,
   bud: 2,
   regular: 3,
   seasonal: 4,
   monthly: 5
-};
-
-const FLOWER_LABEL = {
-  bare: "탈모",
-  leaf: "잎사귀",
-  bud: "봉우리",
-  regular: "일반 꽃",
-  seasonal: "계절 꽃",
-  monthly: "이달의 꽃"
 };
 
 const SCENARIOS = [
@@ -56,6 +46,7 @@ const SCENARIOS = [
 const COLOR_BY_ID = Object.fromEntries(COLORS.map((item) => [item.id, item]));
 const DECOR_BY_ID = Object.fromEntries(DECORS.map((item) => [item.id, item]));
 const FRIENDSHIP_BY_ID = Object.fromEntries(FRIENDSHIPS.map((item) => [item.id, item]));
+const STORAGE_KEY = "pikminMushroomCalculatorV5";
 
 const decorSectionsEl = document.querySelector("#decorSections");
 const groupTemplate = document.querySelector("#groupTemplate");
@@ -74,8 +65,8 @@ const bonusInputs = {
 const output = {
   totalPower: document.querySelector("#totalPower"),
   powerComment: document.querySelector("#powerComment"),
+  showComment: document.querySelector("#showComment"),
   seasonTotal: document.querySelector("#seasonTotal"),
-  seasonComment: document.querySelector("#seasonComment"),
   regularTotal: document.querySelector("#regularTotal"),
   unfedTotal: document.querySelector("#unfedTotal"),
   bareTotal: document.querySelector("#bareTotal"),
@@ -85,13 +76,15 @@ const output = {
 };
 
 const SAMPLE_ROWS = [
-  { decor: "current", count: 8, color: "purple", friendship: "yellow4" },
-  { decor: "current", count: 10, color: "rock", friendship: "yellow3" },
-  { decor: "current", count: 4, color: "ice", friendship: "yellow2" },
-  { decor: "revival", count: 7, color: "red", friendship: "yellow2" },
-  { decor: "normal", count: 9, color: "blue", friendship: "red4" },
-  { decor: "none", count: 6, color: "yellow", friendship: "red4" }
+  { decor: "current", color: "purple", counts: { yellow4: 8 } },
+  { decor: "current", color: "rock", counts: { yellow3: 10 } },
+  { decor: "current", color: "ice", counts: { yellow2: 4 } },
+  { decor: "revival", color: "red", counts: { yellow2: 7 } },
+  { decor: "normal", color: "blue", counts: { red4: 9 } },
+  { decor: "none", color: "yellow", counts: { red4: 6 } }
 ];
+
+let lastCommentPower = null;
 
 function numberValue(el, fallback = 0) {
   const value = Number(el.value);
@@ -125,26 +118,46 @@ function getDecorPower(decorId) {
   return base + eventBonus;
 }
 
+function emptyScenarioTotals() {
+  return Object.fromEntries(SCENARIOS.map((scenario) => [scenario.id, 0]));
+}
+
 function getRowData(row) {
   const decor = row.closest(".decor-group").dataset.decor;
-  const count = Math.max(0, Math.floor(numberValue(row.querySelector(".count"), 0)));
   const color = row.dataset.color;
-  const friendship = row.querySelector(".friendship").value;
-  const base = COLOR_BY_ID[color].power + FRIENDSHIP_BY_ID[friendship].power + getDecorPower(decor);
+  const colorPower = COLOR_BY_ID[color].power;
+  const decorPower = getDecorPower(decor);
+  const counts = Object.fromEntries(FRIENDSHIPS.map((friendship) => {
+    const input = row.querySelector(`[data-heart="${friendship.id}"]`);
+    return [friendship.id, Math.max(0, Math.floor(numberValue(input, 0)))];
+  }));
+  const count = Object.values(counts).reduce((sum, value) => sum + value, 0);
   const scenarios = Object.fromEntries(SCENARIOS.map((scenario) => {
-    const each = base + getScenarioFlowerPower(scenario);
-    return [scenario.id, { each, total: each * count }];
+    const flowerPower = getScenarioFlowerPower(scenario);
+    const total = FRIENDSHIPS.reduce((sum, friendship) => {
+      const each = colorPower + friendship.power + decorPower + flowerPower;
+      return sum + each * counts[friendship.id];
+    }, 0);
+    return [scenario.id, { total }];
   }));
 
-  return { decor, count, color, friendship, base, scenarios };
+  return { decor, color, counts, count, scenarios };
 }
 
 function createGroup(decor) {
   const fragment = groupTemplate.content.cloneNode(true);
   const group = fragment.querySelector(".decor-group");
+  const toggle = group.querySelector(".group-toggle");
+
   group.dataset.decor = decor.id;
-  group.querySelector("h3").textContent = decor.label;
+  group.querySelector(".group-title").textContent = decor.label;
   group.querySelector("p").textContent = decor.hint;
+  toggle.addEventListener("click", () => {
+    const collapsed = group.classList.toggle("collapsed");
+    toggle.setAttribute("aria-expanded", String(!collapsed));
+    saveState();
+  });
+
   decorSectionsEl.appendChild(group);
   for (const color of COLORS) createRow(decor.id, color.id);
 }
@@ -156,9 +169,7 @@ function createRow(decorId, colorId) {
   const color = COLOR_BY_ID[colorId];
 
   row.dataset.color = colorId;
-  row.querySelector(".count").value = 0;
   row.querySelector(".color-label").textContent = `${color.label} (+${color.power})`;
-  row.querySelector(".friendship").value = "red4";
   row.addEventListener("input", calculate);
   row.addEventListener("change", calculate);
 
@@ -171,12 +182,19 @@ function collectRows() {
 
 function expandScenario(items, scenarioId) {
   return items.flatMap((item) => (
-    Array.from({ length: item.count }, () => ({
-      each: item.scenarios[scenarioId].each,
-      decor: item.decor,
-      color: item.color,
-      friendship: item.friendship
-    }))
+    FRIENDSHIPS.flatMap((friendship) => {
+      const count = item.counts[friendship.id] || 0;
+      const each = COLOR_BY_ID[item.color].power
+        + FRIENDSHIP_BY_ID[friendship.id].power
+        + getDecorPower(item.decor)
+        + getScenarioFlowerPower(SCENARIOS.find((scenario) => scenario.id === scenarioId));
+      return Array.from({ length: count }, () => ({
+        each,
+        decor: item.decor,
+        color: item.color,
+        friendship: friendship.id
+      }));
+    })
   ));
 }
 
@@ -218,29 +236,47 @@ function renderSummary(container, summary) {
 
 function renderTopList(items) {
   const limit = Math.max(1, Math.floor(numberValue(teamLimitEl, 40)));
-  const sortedRows = [...items].sort((a, b) => b.scenarios.season.each - a.scenarios.season.each);
-  const top = [];
-  let remaining = limit;
+  const top = expandScenario(items, "season")
+    .sort((a, b) => b.each - a.each)
+    .slice(0, limit);
+  const grouped = [];
 
-  for (const item of sortedRows) {
-    if (remaining <= 0) break;
-    const count = Math.min(item.count, remaining);
-    if (count > 0) {
-      top.push({ ...item, count });
-      remaining -= count;
+  for (const item of top) {
+    const key = `${item.decor}|${item.color}|${item.friendship}|${item.each}`;
+    const existing = grouped.find((entry) => entry.key === key);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      grouped.push({ key, ...item, count: 1 });
     }
   }
 
   output.topList.innerHTML = "";
-  if (!top.length) {
+  if (!grouped.length) {
     output.topList.innerHTML = "<li>입력 없음</li>";
     return;
   }
 
-  for (const item of top) {
+  for (const item of grouped) {
     const li = document.createElement("li");
-    li.innerHTML = `${COLOR_BY_ID[item.color].label} ${DECOR_BY_ID[item.decor].label} · ${item.count}마리 <strong>${item.scenarios.season.each}</strong><span>${FRIENDSHIP_BY_ID[item.friendship].label}, 시즌꽃 기준</span>`;
+    li.innerHTML = `${COLOR_BY_ID[item.color].label} ${DECOR_BY_ID[item.decor].label} · ${item.count}마리 <strong>${item.each}</strong><span>${FRIENDSHIP_BY_ID[item.friendship].label}, 시즌꽃 기준</span>`;
     output.topList.appendChild(li);
+  }
+}
+
+function updateGroupTotals(items) {
+  for (const decor of DECORS) {
+    const group = decorSectionsEl.querySelector(`[data-decor="${decor.id}"]`);
+    const rows = items.filter((item) => item.decor === decor.id);
+    const totals = rows.reduce((acc, item) => {
+      for (const scenario of SCENARIOS) acc[scenario.id] += item.scenarios[scenario.id].total;
+      return acc;
+    }, emptyScenarioTotals());
+
+    group.querySelector(".group-season").textContent = formatNumber(totals.season);
+    group.querySelector(".group-regular").textContent = formatNumber(totals.regular);
+    group.querySelector(".group-unfed").textContent = formatNumber(totals.unfed);
+    group.querySelector(".group-bare").textContent = formatNumber(totals.bare);
   }
 }
 
@@ -259,10 +295,15 @@ function calculate() {
     row.querySelector(".bare").textContent = formatNumber(data.scenarios.bare.total);
   }
 
+  updateGroupTotals(items);
   output.totalPower.textContent = formatNumber(totals.season);
   output.powerComment.textContent = getPowerComment(totals.season);
+  if (lastCommentPower !== totals.season) {
+    output.powerComment.hidden = true;
+    output.showComment.textContent = "결과 확인";
+    lastCommentPower = totals.season;
+  }
   output.seasonTotal.textContent = formatNumber(totals.season);
-  output.seasonComment.textContent = getPowerComment(totals.season);
   output.regularTotal.textContent = formatNumber(totals.regular);
   output.unfedTotal.textContent = formatNumber(totals.unfed);
   output.bareTotal.textContent = formatNumber(totals.bare);
@@ -289,22 +330,25 @@ function getState() {
       revival: bonusInputs.revival.value,
       normal: bonusInputs.normal.value
     },
+    collapsed: Object.fromEntries(DECORS.map((decor) => [
+      decor.id,
+      decorSectionsEl.querySelector(`[data-decor="${decor.id}"]`)?.classList.contains("collapsed") || false
+    ])),
     rows: collectRows().map((item) => ({
       decor: item.decor,
-      count: item.count,
       color: item.color,
-      friendship: item.friendship
+      counts: item.counts
     }))
   };
 }
 
 function saveState() {
-  localStorage.setItem("pikminMushroomCalculatorV4", JSON.stringify(getState()));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(getState()));
 }
 
 function loadState() {
   try {
-    const state = JSON.parse(localStorage.getItem("pikminMushroomCalculatorV4"));
+    const state = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!state) return false;
 
     teamLimitEl.value = state.teamLimit ?? 40;
@@ -316,6 +360,7 @@ function loadState() {
     bonusInputs.normal.value = state.bonuses?.normal ?? 0;
 
     applyRows(state.rows || []);
+    applyCollapsed(state.collapsed || {});
     return Boolean((state.rows || []).length);
   } catch {
     return false;
@@ -326,8 +371,18 @@ function applyRows(rows) {
   for (const data of rows) {
     const row = decorSectionsEl.querySelector(`[data-decor="${data.decor || "normal"}"] tr[data-color="${data.color || "red"}"]`);
     if (!row) continue;
-    row.querySelector(".count").value = data.count ?? 0;
-    row.querySelector(".friendship").value = data.friendship ?? "red4";
+    for (const friendship of FRIENDSHIPS) {
+      row.querySelector(`[data-heart="${friendship.id}"]`).value = data.counts?.[friendship.id] ?? 0;
+    }
+  }
+}
+
+function applyCollapsed(collapsed) {
+  for (const decor of DECORS) {
+    const group = decorSectionsEl.querySelector(`[data-decor="${decor.id}"]`);
+    const isCollapsed = Boolean(collapsed[decor.id]);
+    group.classList.toggle("collapsed", isCollapsed);
+    group.querySelector(".group-toggle").setAttribute("aria-expanded", String(!isCollapsed));
   }
 }
 
@@ -338,15 +393,15 @@ function setSampleRows() {
 }
 
 function clearRows() {
-  localStorage.removeItem("pikminMushroomCalculatorV4");
+  localStorage.removeItem(STORAGE_KEY);
   resetRows();
+  applyCollapsed({});
   calculate();
 }
 
 function resetRows() {
   for (const row of decorSectionsEl.querySelectorAll("tbody tr")) {
-    row.querySelector(".count").value = 0;
-    row.querySelector(".friendship").value = "red4";
+    for (const input of row.querySelectorAll(".heart-count")) input.value = 0;
   }
 }
 
@@ -354,6 +409,10 @@ for (const decor of DECORS) createGroup(decor);
 
 document.querySelector("#sampleRows").addEventListener("click", setSampleRows);
 document.querySelector("#clearRows").addEventListener("click", clearRows);
+output.showComment.addEventListener("click", () => {
+  output.powerComment.hidden = !output.powerComment.hidden;
+  output.showComment.textContent = output.powerComment.hidden ? "결과 확인" : "결과 숨기기";
+});
 
 for (const el of [teamLimitEl, seasonFlowerPowerEl, unfedFlowerEl, decorBaseEl, ...Object.values(bonusInputs)]) {
   el.addEventListener("input", calculate);

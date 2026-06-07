@@ -106,6 +106,21 @@ h1 {
   line-height: 1.35;
 }
 
+.comment-button {
+  width: max-content;
+  min-height: 34px;
+  margin-top: 6px;
+  border-color: rgba(227, 239, 226, 0.48);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.comment-button:hover {
+  border-color: #ffffff;
+}
+
 .hero-total span,
 .metric span,
 .section-title span {
@@ -153,14 +168,6 @@ h1 {
 .metric strong {
   font-size: 2rem;
   line-height: 1;
-}
-
-.metric-comment {
-  color: var(--accent-strong);
-  font-size: 0.9rem;
-  font-style: normal;
-  font-weight: 800;
-  line-height: 1.35;
 }
 
 .metric.highlight {
@@ -269,6 +276,14 @@ button:focus-visible {
   background: #fbfcfa;
 }
 
+.decor-group.collapsed .group-body {
+  display: none;
+}
+
+.decor-group.collapsed .toggle-icon {
+  transform: rotate(-90deg);
+}
+
 .group-head {
   display: flex;
   align-items: center;
@@ -277,8 +292,34 @@ button:focus-visible {
   margin-bottom: 10px;
 }
 
+.group-toggle {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+}
+
+.group-toggle:hover {
+  border-color: transparent;
+  color: var(--accent-strong);
+}
+
+.toggle-icon {
+  display: inline-block;
+  transition: transform 160ms ease;
+}
+
 .group-head h3 {
   margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.group-title {
   font-size: 1rem;
 }
 
@@ -286,6 +327,28 @@ button:focus-visible {
   margin: 0;
   color: var(--muted);
   font-size: 0.86rem;
+}
+
+.group-totals {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.group-totals span {
+  display: inline-flex;
+  gap: 4px;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.group-totals strong {
+  color: var(--ink);
+  font-size: 0.98rem;
 }
 
 .table-wrap {
@@ -296,7 +359,7 @@ button:focus-visible {
 
 table {
   width: 100%;
-  min-width: 780px;
+  min-width: 1060px;
   border-collapse: collapse;
 }
 
@@ -319,12 +382,14 @@ td select {
   min-height: 38px;
 }
 
-.count {
-  width: 74px;
+.heart-count {
+  width: 58px;
+  padding: 0 8px;
+  text-align: right;
 }
 
 .color-label {
-  min-width: 104px;
+  min-width: 106px;
   font-weight: 800;
 }
 
@@ -446,5 +511,9 @@ td select {
   .group-head {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .group-totals {
+    grid-template-columns: repeat(2, auto);
   }
 }
