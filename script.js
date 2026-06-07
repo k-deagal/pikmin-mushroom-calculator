@@ -266,13 +266,14 @@ function getDecorAlias(value) {
 }
 
 function getPowerComment(power) {
+  if (power >= 13400) return "더이상 오를수 곳이 없어요";
   if (power >= 12000) return "이제 더이상 안올려도 되겠는걸요";
   if (power >= 10000) return "이제 하산해도 될 경지";
   if (power >= 7000) return "일인분! 일까요?";
   if (power >= 5000) return "시즌 초반이면 나름 쓸만하네요";
   if (power <= 500) return "이건 알박기인가요?";
   if (power <= 1000) return "알박기 하실건 아니죠?";
-  return "좀 치시는듯?";
+  return "이제 쫌 버섯 전투가 할만하겠네요";
 }
 
 function getScenarioFlowerPower(scenario) {
