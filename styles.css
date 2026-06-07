@@ -98,6 +98,14 @@ h1 {
   gap: 4px;
 }
 
+.power-comment {
+  margin: 4px 0 0;
+  color: #e3efe2;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
 .hero-total span,
 .metric span,
 .section-title span {
@@ -145,6 +153,14 @@ h1 {
 .metric strong {
   font-size: 2rem;
   line-height: 1;
+}
+
+.metric-comment {
+  color: var(--accent-strong);
+  font-size: 0.9rem;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .metric.highlight {

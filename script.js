@@ -73,7 +73,9 @@ const bonusInputs = {
 
 const output = {
   totalPower: document.querySelector("#totalPower"),
+  powerComment: document.querySelector("#powerComment"),
   seasonTotal: document.querySelector("#seasonTotal"),
+  seasonComment: document.querySelector("#seasonComment"),
   regularTotal: document.querySelector("#regularTotal"),
   unfedTotal: document.querySelector("#unfedTotal"),
   bareTotal: document.querySelector("#bareTotal"),
@@ -98,6 +100,16 @@ function numberValue(el, fallback = 0) {
 
 function formatNumber(value) {
   return Math.round(value).toLocaleString("ko-KR");
+}
+
+function getPowerComment(power) {
+  if (power >= 12000) return "이제 더이상 안올려도 되겠는걸요";
+  if (power >= 10000) return "이제 하산해도 될 경지";
+  if (power >= 7000) return "일인분! 일까요?";
+  if (power >= 5000) return "시즌 초반이면 나름 쓸만하네요";
+  if (power <= 500) return "이건 알박기인가요?";
+  if (power <= 1000) return "알박기 하실건 아니죠?";
+  return "좀 치시는듯?";
 }
 
 function getScenarioFlowerPower(scenario) {
@@ -248,7 +260,9 @@ function calculate() {
   }
 
   output.totalPower.textContent = formatNumber(totals.season);
+  output.powerComment.textContent = getPowerComment(totals.season);
   output.seasonTotal.textContent = formatNumber(totals.season);
+  output.seasonComment.textContent = getPowerComment(totals.season);
   output.regularTotal.textContent = formatNumber(totals.regular);
   output.unfedTotal.textContent = formatNumber(totals.unfed);
   output.bareTotal.textContent = formatNumber(totals.bare);
