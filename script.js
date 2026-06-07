@@ -238,6 +238,7 @@ const HEART_ALIASES = {
 };
 
 function numberValue(el, fallback = 0) {
+  if (!el) return fallback;
   const value = Number(el.value);
   return Number.isFinite(value) ? value : fallback;
 }
@@ -478,6 +479,75 @@ function renderTopList(items) {
   }
 }
 
+function getHeartIcon(friendshipId) {
+  const friendship = FRIENDSHIP_BY_ID[friendshipId];
+  const stage = friendshipId.replace(/^\D+/, "");
+  const isYellow = friendshipId.startsWith("yellow");
+  return {
+    className: isYellow ? "yellow-heart" : "red-heart",
+    text: `♥${stage}`,
+    label: friendship.label
+  };
+}
+
+function renderGroupSelectionSummary(group, rows) {
+  const summaryEl = group.querySelector(".group-selection-summary");
+  const entries = [];
+
+  for (const item of rows) {
+    for (const friendship of FRIENDSHIPS) {
+      const count = item.counts[friendship.id] || 0;
+      if (count <= 0) continue;
+      entries.push({
+        color: item.color,
+        friendship: friendship.id,
+        count
+      });
+    }
+  }
+
+  entries.sort((a, b) => {
+    const colorDiff = COLORS.findIndex((color) => color.id === a.color)
+      - COLORS.findIndex((color) => color.id === b.color);
+    if (colorDiff) return colorDiff;
+    return FRIENDSHIPS.findIndex((friendship) => friendship.id === a.friendship)
+      - FRIENDSHIPS.findIndex((friendship) => friendship.id === b.friendship);
+  });
+
+  summaryEl.innerHTML = "";
+  if (!entries.length) {
+    const empty = document.createElement("span");
+    empty.className = "selection-empty";
+    empty.textContent = "입력 없음";
+    summaryEl.appendChild(empty);
+    return;
+  }
+
+  const visibleEntries = entries.slice(0, 6);
+  for (const entry of visibleEntries) {
+    const color = COLOR_BY_ID[entry.color];
+    const heart = getHeartIcon(entry.friendship);
+    const chip = document.createElement("span");
+    chip.className = `selection-chip color-${entry.color}`;
+    chip.title = `${color.label}피크민 ${heart.label} ${entry.count}마리`;
+    chip.setAttribute("aria-label", chip.title);
+    chip.innerHTML = `
+      <span class="pikmin-dot" aria-hidden="true">${color.label.slice(0, 1)}</span>
+      <span class="heart-icon ${heart.className}" aria-hidden="true">${heart.text}</span>
+      <strong aria-hidden="true">×${entry.count}</strong>
+    `;
+    summaryEl.appendChild(chip);
+  }
+
+  if (entries.length > visibleEntries.length) {
+    const more = document.createElement("span");
+    more.className = "selection-more";
+    more.textContent = `+${entries.length - visibleEntries.length}`;
+    more.title = `추가 입력 ${entries.length - visibleEntries.length}개`;
+    summaryEl.appendChild(more);
+  }
+}
+
 function updateGroupTotals(items) {
   for (const decor of DECORS) {
     const group = decorSectionsEl.querySelector(`[data-decor="${decor.id}"]`);
@@ -491,6 +561,7 @@ function updateGroupTotals(items) {
     group.querySelector(".group-regular").textContent = formatNumber(totals.regular);
     group.querySelector(".group-unfed").textContent = formatNumber(totals.unfed);
     group.querySelector(".group-bare").textContent = formatNumber(totals.bare);
+    renderGroupSelectionSummary(group, rows);
   }
 }
 
