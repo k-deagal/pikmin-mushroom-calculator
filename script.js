@@ -373,7 +373,7 @@ function createRow(decorId, colorId) {
   const color = COLOR_BY_ID[colorId];
 
   row.dataset.color = colorId;
-  row.querySelector(".color-label").textContent = `${color.label} (+${color.power})`;
+  row.querySelector(".color-label").textContent = `${color.label}피크민 (+${color.power})`;
   const heartSelect = row.querySelector(".heart-select");
   for (const friendship of FRIENDSHIPS) {
     const option = document.createElement("option");
