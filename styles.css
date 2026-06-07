@@ -21,6 +21,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   font-family: "Segoe UI", "Malgun Gothic", Arial, sans-serif;
   background:
     radial-gradient(circle at 16% 0%, rgba(242, 200, 75, 0.18), transparent 28rem),
@@ -126,6 +127,7 @@ h1 {
 .table-panel,
 .result-panel,
 .formula-panel {
+  min-width: 0;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -145,10 +147,15 @@ h1 {
   line-height: 1;
 }
 
+.metric.highlight {
+  border-color: rgba(79, 143, 71, 0.55);
+  background: #f8fff5;
+}
+
 .control-band {
   margin-top: 14px;
   display: grid;
-  grid-template-columns: minmax(220px, 1.4fr) minmax(160px, 0.8fr) minmax(190px, 1fr) auto;
+  grid-template-columns: minmax(150px, 0.8fr) minmax(180px, 1fr) minmax(190px, 1fr) auto auto;
   gap: 12px;
   align-items: end;
 }
@@ -233,13 +240,47 @@ button:focus-visible {
   display: block;
 }
 
+.decor-sections {
+  display: grid;
+  gap: 16px;
+}
+
+.decor-group {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcfa;
+}
+
+.group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.group-head h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.group-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
 .table-wrap {
+  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
 }
 
 table {
   width: 100%;
-  min-width: 920px;
+  min-width: 860px;
   border-collapse: collapse;
 }
 
@@ -267,7 +308,8 @@ td select {
 }
 
 .each-power,
-.row-total {
+.row-total,
+.scenario-power {
   width: 74px;
   font-weight: 900;
   text-align: right;
@@ -379,7 +421,8 @@ td select {
     align-items: stretch;
   }
 
-  .section-title {
+  .section-title,
+  .group-head {
     align-items: flex-start;
     flex-direction: column;
   }
