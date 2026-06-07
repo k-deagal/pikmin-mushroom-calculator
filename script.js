@@ -317,7 +317,6 @@ function createHeartSlot(row, friendshipId, value = "") {
   const existing = row.querySelector(`[data-heart="${friendshipId}"]`);
   if (existing) {
     existing.value = value;
-    existing.focus();
     return existing;
   }
 
@@ -338,9 +337,7 @@ function createHeartSlot(row, friendshipId, value = "") {
   });
 
   row.querySelector(".heart-slots").appendChild(slot);
-  const input = slot.querySelector(".heart-count");
-  input.focus();
-  return input;
+  return slot.querySelector(".heart-count");
 }
 
 function setHeartCount(row, friendshipId, value) {
