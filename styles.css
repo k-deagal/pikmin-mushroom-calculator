@@ -84,6 +84,8 @@ h1 {
   font-size: clamp(2.15rem, 5vw, 4rem);
   line-height: 1.05;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
+  word-break: break-all;
 }
 
 .hero-total {
@@ -165,6 +167,30 @@ h1 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+}
+
+.top-notice {
+  min-width: 0;
+  max-width: 100%;
+  margin-top: 4px;
+  padding: 14px 16px;
+  border: 1px solid rgba(79, 143, 71, 0.26);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 8px 22px rgba(30, 37, 32, 0.05);
+}
+
+.top-notice p {
+  display: block;
+  max-width: 100%;
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.96rem;
+  font-weight: 800;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  word-break: break-all;
 }
 
 .metric,
@@ -318,11 +344,17 @@ button:focus-visible {
   justify-content: space-between;
   gap: 14px;
   margin-bottom: 14px;
+  min-width: 0;
 }
 
 .section-title h2 {
   margin: 0;
   font-size: 1.18rem;
+}
+
+.section-title span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .button-row {
@@ -898,6 +930,15 @@ td select {
     min-height: 0;
   }
 
+  h1 {
+    max-width: 9em;
+    font-size: clamp(1.85rem, 8vw, 2.25rem);
+  }
+
+  .top-notice p {
+    max-width: 20em;
+  }
+
   .control-band {
     align-items: stretch;
   }
@@ -906,7 +947,12 @@ td select {
     grid-template-columns: 1fr;
   }
 
-  .section-title,
+  .section-title {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
   .group-head {
     align-items: flex-start;
   }
