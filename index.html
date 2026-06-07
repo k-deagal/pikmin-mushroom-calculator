@@ -21,8 +21,8 @@
         <span>직접 입력하거나 AI 결과를 붙여넣기</span>
       </div>
       <ol class="guide-list">
-        <li>이벤트 버섯이면 공지의 데코 추가 투력을 넣습니다.</li>
-        <li>색상과 하트 단계별 마릿수를 직접 넣습니다.</li>
+        <li>이벤트 데코 추가 투력을 확인합니다.</li>
+        <li>색상별로 필요한 하트 단계만 추가합니다.</li>
         <li>AI CSV는 아래에 붙여넣습니다.</li>
         <li>결과는 맨 아래입니다.</li>
       </ol>
@@ -95,7 +95,7 @@
     <section class="table-panel" aria-label="피크민 상태 입력">
       <div class="section-title">
         <h2>데코별 마릿수</h2>
-        <span>색상은 투력순, 하트 단계별 마릿수를 입력</span>
+        <span>필요한 하트 단계만 골라 추가</span>
       </div>
       <div id="decorSections" class="decor-sections"></div>
     </section>
@@ -225,49 +225,27 @@
           <span>탈모 <strong class="group-bare">0</strong></span>
         </div>
       </div>
-      <div class="table-wrap group-body">
-        <table>
-          <thead>
-            <tr>
-              <th>색상</th>
-              <th>빨0</th>
-              <th>빨1</th>
-              <th>빨2</th>
-              <th>빨3</th>
-              <th>빨4</th>
-              <th>노1</th>
-              <th>노2</th>
-              <th>노3</th>
-              <th>노4</th>
-              <th>시즌꽃</th>
-              <th>일반꽃</th>
-              <th>안줌</th>
-              <th>탈모</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <div class="heart-grid group-body">
+        <div class="color-rows"></div>
       </div>
     </div>
   </template>
 
   <template id="rowTemplate">
-    <tr>
-      <td class="color-label"></td>
-      <td><input class="heart-count" data-heart="red0" type="number" min="0" max="100" step="1" value="0" aria-label="빨강하트 0 마리"></td>
-      <td><input class="heart-count" data-heart="red1" type="number" min="0" max="100" step="1" value="0" aria-label="빨강하트 1 마리"></td>
-      <td><input class="heart-count" data-heart="red2" type="number" min="0" max="100" step="1" value="0" aria-label="빨강하트 2 마리"></td>
-      <td><input class="heart-count" data-heart="red3" type="number" min="0" max="100" step="1" value="0" aria-label="빨강하트 3 마리"></td>
-      <td><input class="heart-count" data-heart="red4" type="number" min="0" max="100" step="1" value="0" aria-label="빨강하트 4 마리"></td>
-      <td><input class="heart-count" data-heart="yellow1" type="number" min="0" max="100" step="1" value="0" aria-label="노랑하트 1 마리"></td>
-      <td><input class="heart-count" data-heart="yellow2" type="number" min="0" max="100" step="1" value="0" aria-label="노랑하트 2 마리"></td>
-      <td><input class="heart-count" data-heart="yellow3" type="number" min="0" max="100" step="1" value="0" aria-label="노랑하트 3 마리"></td>
-      <td><input class="heart-count" data-heart="yellow4" type="number" min="0" max="100" step="1" value="0" aria-label="노랑하트 4 마리"></td>
-      <td class="scenario-power season">0</td>
-      <td class="scenario-power regular">0</td>
-      <td class="scenario-power unfed">0</td>
-      <td class="scenario-power bare">0</td>
-    </tr>
+    <div class="color-row">
+      <div class="color-label"></div>
+      <div class="heart-slots"></div>
+      <div class="heart-add">
+        <select class="heart-select" aria-label="추가할 하트 단계"></select>
+        <button class="add-heart" type="button">추가</button>
+      </div>
+      <div class="row-scenarios" aria-label="색상 행 투력 합계">
+        <span>시즌꽃 <strong class="scenario-power season">0</strong></span>
+        <span>일반꽃 <strong class="scenario-power regular">0</strong></span>
+        <span>안줌 <strong class="scenario-power unfed">0</strong></span>
+        <span>탈모 <strong class="scenario-power bare">0</strong></span>
+      </div>
+    </div>
   </template>
 
   <script src="./script.js"></script>

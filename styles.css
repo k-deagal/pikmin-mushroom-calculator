@@ -509,6 +509,109 @@ button:focus-visible {
   overflow-x: auto;
 }
 
+.heart-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.color-rows {
+  display: grid;
+  gap: 8px;
+}
+
+.color-row {
+  display: grid;
+  grid-template-columns: minmax(88px, 0.55fr) minmax(220px, 1.7fr) minmax(150px, 0.8fr) minmax(260px, 1.2fr);
+  gap: 10px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0;
+}
+
+.color-row:last-child {
+  border-bottom: 0;
+}
+
+.heart-slots {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 38px;
+  align-items: center;
+}
+
+.heart-slot {
+  display: grid;
+  grid-template-columns: auto 52px 30px;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.heart-slot span {
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.heart-slot .heart-count {
+  width: 52px;
+  min-height: 32px;
+  padding: 0 6px;
+}
+
+.remove-heart {
+  width: 30px;
+  min-height: 30px;
+  padding: 0;
+  color: #a43830;
+  font-weight: 900;
+}
+
+.heart-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  min-width: 0;
+}
+
+.heart-add select,
+.heart-add button {
+  min-height: 36px;
+}
+
+.heart-add select {
+  min-width: 0;
+}
+
+.add-heart {
+  padding: 0 10px;
+  min-width: 54px;
+}
+
+.row-scenarios {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 5px 10px;
+  justify-content: end;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.row-scenarios span {
+  display: inline-flex;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.row-scenarios strong {
+  color: var(--ink);
+}
+
 table {
   width: 100%;
   min-width: 880px;
@@ -671,6 +774,39 @@ td select {
 
   .group-totals {
     grid-template-columns: repeat(2, auto);
+  }
+
+  .color-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .heart-slots {
+    min-height: 0;
+  }
+
+  .heart-slot {
+    grid-template-columns: auto 46px 28px;
+  }
+
+  .heart-slot .heart-count {
+    width: 46px;
+  }
+
+  .heart-add {
+    grid-template-columns: 1fr;
+  }
+
+  .add-heart {
+    width: 100%;
+    min-width: 0;
+    padding: 0 10px;
+    font-size: 0.86rem;
+  }
+
+  .row-scenarios {
+    justify-content: start;
   }
 
   table {
