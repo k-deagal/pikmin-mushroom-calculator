@@ -280,7 +280,7 @@ button:focus-visible {
 
 table {
   width: 100%;
-  min-width: 860px;
+  min-width: 780px;
   border-collapse: collapse;
 }
 
@@ -305,6 +305,11 @@ td select {
 
 .count {
   width: 74px;
+}
+
+.color-label {
+  min-width: 104px;
+  font-weight: 800;
 }
 
 .each-power,
