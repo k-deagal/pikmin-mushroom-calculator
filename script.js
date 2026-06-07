@@ -458,6 +458,7 @@ function buildShareText() {
     `안줌: ${formatNumber(lastTotals.unfed)}`,
     `탈모: ${formatNumber(lastTotals.bare)}`,
     `기준: 상위 ${Math.min(count, limit)}마리 / 입력 ${count}마리`,
+    `보너스: 현재시즌 +${numberValue(bonusInputs.current, 0)} / 복각 +${numberValue(bonusInputs.revival, 0)} / 일반 +${numberValue(bonusInputs.normal, 0)} / 데코기본 +${numberValue(decorBaseEl, 4)}`,
     getPowerComment(lastTotals.season),
     url
   ].join("\n");
